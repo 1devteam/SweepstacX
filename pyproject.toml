@@ -1,0 +1,36 @@
+[project]
+name = "tooleval"
+version = "0.1.0"
+description = "Adaptive code quality sweep CLI with next-action suggestions"
+requires-python = ">=3.12"
+license = "MIT"
+readme = "README.md"
+keywords = ["lint", "CI", "code quality", "automation"]
+authors = [{ name = "Your Name" }]
+dependencies = ["PyYAML"]
+
+[project.optional-dependencies]
+dev = ["ruff", "flake8", "pylint", "pytest"]
+plugins = ["bandit", "mypy"]
+formatter = ["black"]
+
+[build-system]
+requires = ["setuptools>=63", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [".git", ".venv", "build", "dist", "node_modules"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+ignore = []
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = [
+  "C0114",  # missing-module-docstring
+  "C0115",  # missing-class-docstring
+  "C0116",  # missing-function-docstring
+  "C0301"   # line-too-long (handled by formatter policy)
+]

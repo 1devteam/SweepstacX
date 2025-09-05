@@ -1,0 +1,10 @@
+# Core dev tooling
+ruff>=0.5.6
+flake8>=7.3.0
+pylint>=3.2.0
+pytest>=8.3.2
+rich>=13.7.1
+
+# Optional: type checking / coverage (uncomment if you want)
+# mypy>=1.11.0
+# coverage[toml]>=7.6.0

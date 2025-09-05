@@ -1,0 +1,5 @@
+plugins:
+  - name: mypy
+    command: "mypy . --ignore-missing-imports"
+  - name: bandit
+    command: "bandit -r . -f json"
