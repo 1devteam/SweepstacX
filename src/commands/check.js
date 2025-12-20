@@ -32,7 +32,7 @@ export default async function runCheck(opts = {}) {
     if (typeof stats.max_complexity === 'number' && stats.max_complexity > cfg.complexity.maxFunction) fail = true;
 
     // Clean up temp artifacts (keep if you want)
-    try { await rm(jsonPath); } catch {}
+    try { await rm(jsonPath); } catch (_err) { /* ignore */ }
 
     process.exit(fail ? 1 : 0);
   } catch (err) {

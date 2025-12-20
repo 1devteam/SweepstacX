@@ -9,12 +9,13 @@ import runDeps from './commands/deps.js';
 import runDupes from './commands/dupes.js';
 import runComplexity from './commands/complexity.js';
 import runFuzz from './commands/fuzz.js';
+import runInsights from './commands/insights.js';
 
 const program = new Command();
 program
   .name('sweepstacx')
   .description('Repo sweeper for modern dev stacks: scan, report, patch.')
-  .version('0.1.7');
+  .version('0.2.0');
 
 program
   .command('scan')
@@ -26,6 +27,8 @@ program
 program
   .command('report')
   .option('--out <base>', 'basename for outputs (json/md)', 'sweepstacx-report')
+  .option('--json', 'output JSON to stdout', false)
+  .option('--md', 'output Markdown to stdout', false)
   .action(async (opts) => { await runReport(opts); });
 
 program
@@ -67,5 +70,11 @@ program
   .argument('<file>', 'target JS file to fuzz')
   .option('--timeout <ms>', 'timeout per case (ms)', '5000')
   .action(async (file, opts) => { await runFuzz(file, opts); });
+
+program
+  .command('insights')
+  .description('Advanced code analysis with actionable recommendations')
+  .option('--path <path>', 'path to analyze', '.')
+  .action(async (opts) => { await runInsights(opts); });
 
 program.parseAsync(process.argv);

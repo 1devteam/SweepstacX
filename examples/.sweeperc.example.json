@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/1devteam/SweepstacX/main/docs/config-schema.json",
+  "complexity": {
+    "maxFunction": 15,
+    "maxAverage": 10,
+    "minMaintainability": 65
+  },
+  "duplication": {
+    "maxLines": 10,
+    "maxPercent": 8
+  },
+  "lint": {
+    "maxErrors": 0,
+    "maxWarningsPerKLOC": 10
+  },
+  "deps": {
+    "unused": 0,
+    "missing": 0
+  },
+  "fuzz": {
+    "timeout": 5000,
+    "crashes": 0
+  },
+  "ignore": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    "coverage/**",
+    ".git/**",
+    "*.min.js",
+    "vendor/**"
+  ]
+}

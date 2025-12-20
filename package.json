@@ -1,6 +1,6 @@
 {
   "name": "sweepstacx",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "Repo sweeper for modern dev stacks: scan, report, patch.",
   "type": "module",
   "bin": {
@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "build": "echo 'no build step for CLI'",
-    "lint": "echo \"TODO: add eslint\"",
+    "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest"
   },

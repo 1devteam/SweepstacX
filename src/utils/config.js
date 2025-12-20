@@ -11,7 +11,7 @@ export const defaultConfig = {
   ignore: ['node_modules/**', 'dist/**', 'coverage/**', '.git/**']
 };
 
-export async function loadConfig(cliPath = '.', configPath = '') {
+export async function loadConfig(_cliPath = '.', configPath = '') {
   try {
     const target = configPath
       ? resolve(process.cwd(), configPath)
@@ -25,7 +25,7 @@ export async function loadConfig(cliPath = '.', configPath = '') {
   } catch {
     // fall back to defaults
   }
-  return structuredClone(defaultConfig);
+  return JSON.parse(JSON.stringify(defaultConfig));
 }
 
 function deepMerge(base, add) {

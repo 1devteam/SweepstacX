@@ -77,7 +77,7 @@ function removeUnusedImports(source, tokensToRemove) {
     const result = parseImportSpec(spec);
     if (!result) continue;
 
-    const before = lines[i];
+    const _before = lines[i];
     const removedHere = [];
 
     for (const t of tokensToRemove) {
@@ -164,5 +164,5 @@ function makePseudoDiff(relPath, before, after, edits) {
     `+++ b/${relPath}`,
     `# Edits: ${edits.map(e => `${e.action}@${e.line}[${e.tokens.join('|')}]`).join(', ')}`
   ].join('\n');
-  return [header, `@@ ORIGINAL @@`, before, `@@ MODIFIED @@`, after, ``].join('\n');
+  return [header, '@@ ORIGINAL @@', before, '@@ MODIFIED @@', after, ''].join('\n');
 }

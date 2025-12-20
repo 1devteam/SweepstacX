@@ -22,9 +22,9 @@ describe('SweepstacX scan', () => {
     writeFileSync(
       badFile,
       [
-        "// bad.js — intentionally unused import for the test",
+        '// bad.js — intentionally unused import for the test',
         "import { join } from 'node:path'",
-        "export const ok = 1"
+        'export const ok = 1'
       ].join('\n'),
       'utf8'
     );
@@ -36,7 +36,7 @@ describe('SweepstacX scan', () => {
 
     // Find any unused import reported for a file named bad.js (abs or rel path)
     const unused = report.issues.find(
-      (i) => i.type === 'unused_import' && /(^|[\\\/])bad\.js$/.test(i.file)
+      (i) => i.type === 'unused_import' && /(^|[\\/])bad\.js$/.test(i.file)
     );
 
     expect(unused).toBeDefined();
