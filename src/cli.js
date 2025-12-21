@@ -74,11 +74,6 @@ program
   .action(async (opts) => { await runDupes(opts); });
 
 program
-  .command('complexity')
-  .option('--path <path>', 'path to analyze', '.')
-  .action(async (opts) => { await runComplexity(opts); });
-
-program
   .command('fuzz')
   .argument('<file>', 'target JS file to fuzz')
   .option('--timeout <ms>', 'timeout per case (ms)', '5000')
