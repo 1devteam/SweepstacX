@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2024-12-21
+
+### Added
+- **Svelte Analyzer** - Complete Svelte-specific code analysis
+  - Missing keys in {#each} blocks
+  - Reactive statement issues
+  - Store subscription leaks
+  - Event handler anti-patterns
+  - Prop mutations
+  - Accessibility issues
+- **True Parallel Processing** - Worker thread implementation
+  - Multi-core CPU utilization
+  - 2-4x faster scans on large projects
+  - Automatic worker pool management
+- **Enhanced HTML Dashboard** - Interactive charts with Chart.js
+  - Doughnut charts for issue distribution
+  - Bar charts for severity breakdown
+  - Line charts for trend visualization
+  - Filterable issue lists
+  - `--enhanced` flag for chart-based dashboards
+- **Export Functionality** - Multiple format support
+  - CSV export for spreadsheet analysis
+  - PDF export (text-based)
+  - JSON export with formatting
+  - `sweepstacx export` command
+- **Diff Command** - Compare scan reports
+  - Side-by-side comparison
+  - New vs fixed issues
+  - Statistics changes
+  - Color-coded improvements/regressions
+- **Security Vulnerability Scanning** - `sweepstacx security` command
+  - Hardcoded secrets detection
+  - SQL injection vulnerabilities
+  - XSS vulnerabilities
+  - Insecure random number generation
+  - Eval usage detection
+  - Weak cryptographic algorithms
+  - Path traversal vulnerabilities
+  - Insecure HTTP URLs
+
+### Changed
+- HTML command now supports `--enhanced` flag for Chart.js dashboards
+- Parallel processing now uses real worker threads instead of sequential batching
+
+### Performance
+- 2-4x faster scans on projects with 100+ files
+- Worker thread pool automatically scales with CPU cores
+
+### Documentation
+- Updated README with v0.6.0 features
+
 ## [0.5.0] - 2024-12-21
 
 ### Added
@@ -182,7 +233,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic command structure
 - Core scanning functionality
 
-[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/1devteam/SweepstacX/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/1devteam/SweepstacX/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/1devteam/SweepstacX/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/1devteam/SweepstacX/compare/v0.2.0...v0.3.0

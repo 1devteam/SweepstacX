@@ -13,16 +13,20 @@ import runInsights from './commands/insights.js';
 import runInit from './commands/init.js';
 import runWatch from './commands/watch.js';
 import generateHtmlReport from './commands/html-report.js';
+import generateEnhancedHtmlReport from './commands/html-report-enhanced.js';
 import showTrends from './commands/trends.js';
 import runFix from './commands/fix.js';
 import runBenchmark from './commands/benchmark.js';
 import runComplexity from './commands/complexity.js';
+import exportReport from './commands/export.js';
+import diffReports from './commands/diff.js';
+import runSecurityScan from './commands/security.js';
 
 const program = new Command();
 program
   .name('sweepstacx')
   .description('Repo sweeper for modern dev stacks: scan, report, patch.')
-  .version('0.5.0');
+  .version('0.6.0');
 
 program
   .command('scan')
@@ -102,9 +106,16 @@ program
 
 program
   .command('html')
-  .description('Generate interactive HTML report from scan results')
-  .option('--output <file>', 'output HTML file', 'sweepstacx-report.html')
-  .action(async (opts) => { await generateHtmlReport(opts); });
+  .description('Generate interactive HTML report')
+  .option('--output <path>', 'output file path', 'sweepstacx-report.html')
+  .option('--enhanced', 'generate enhanced dashboard with charts')
+  .action(async (opts) => { 
+    if (opts.enhanced) {
+      await generateEnhancedHtmlReport(opts);
+    } else {
+      await generateHtmlReport(opts);
+    }
+  });
 
 program
   .command('trends')
@@ -133,5 +144,25 @@ program
   .option('--path <path>', 'path to analyze', '.')
   .option('--issues', 'show complexity issues')
   .action(async (opts) => { await runComplexity(opts); });
+
+program
+  .command('export')
+  .description('Export scan report to various formats')
+  .option('--format <format>', 'export format (csv, pdf, json)', 'csv')
+  .option('--output <path>', 'output file path')
+  .action(async (opts) => { await exportReport(opts); });
+
+program
+  .command('diff')
+  .description('Compare two scan reports')
+  .option('--base <file>', 'base report file', 'sweepstacx-report.json')
+  .option('--compare <file>', 'report file to compare against (required)')
+  .action(async (opts) => { await diffReports(opts); });
+
+program
+  .command('security')
+  .description('Scan for security vulnerabilities')
+  .option('--path <path>', 'path to scan', '.')
+  .action(async (opts) => { await runSecurityScan(opts); });
 
 program.parseAsync(process.argv);
