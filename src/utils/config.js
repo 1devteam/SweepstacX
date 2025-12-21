@@ -1,6 +1,11 @@
 import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
 import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import Ajv from 'ajv';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export const defaultConfig = {
   complexity: { maxFunction: 10, maxAverage: 8, minMaintainability: 70 },
@@ -8,7 +13,9 @@ export const defaultConfig = {
   lint: { maxErrors: 0, maxWarningsPerKLOC: 5 },
   deps: { unused: 0, missing: 0 },
   fuzz: { timeout: 5000, crashes: 0 },
-  ignore: ['node_modules/**', 'dist/**', 'coverage/**', '.git/**']
+  ignore: ['node_modules/**', 'dist/**', 'coverage/**', '.git/**'],
+  typescript: { enabled: true, checkTypeImports: true },
+  cache: { enabled: true, maxAge: 3600000 }
 };
 
 export async function loadConfig(_cliPath = '.', configPath = '') {
@@ -20,12 +27,56 @@ export async function loadConfig(_cliPath = '.', configPath = '') {
     if (existsSync(target)) {
       const raw = await readFile(target, 'utf8');
       const user = JSON.parse(raw);
+      
+      // Validate config
+      const isValid = await validateConfig(user);
+      if (!isValid) {
+        console.warn('⚠️  Configuration has errors, using defaults');
+        return JSON.parse(JSON.stringify(defaultConfig));
+      }
+      
       return deepMerge(defaultConfig, user);
     }
-  } catch {
-    // fall back to defaults
+  } catch (err) {
+    console.warn('⚠️  Error loading config:', err.message);
   }
   return JSON.parse(JSON.stringify(defaultConfig));
+}
+
+/**
+ * Validate configuration against JSON schema
+ */
+async function validateConfig(config) {
+  try {
+    const schemaPath = resolve(__dirname, '../../docs/config-schema.json');
+    
+    if (!existsSync(schemaPath)) {
+      // Schema not available, skip validation
+      return true;
+    }
+    
+    const schemaContent = await readFile(schemaPath, 'utf8');
+    const schema = JSON.parse(schemaContent);
+    
+    const ajv = new Ajv({ allErrors: true });
+    const validate = ajv.compile(schema);
+    const valid = validate(config);
+    
+    if (!valid) {
+      console.error('\n⚠️  Configuration validation errors:');
+      validate.errors.forEach(err => {
+        const path = err.instancePath || 'root';
+        console.error(`  • ${path}: ${err.message}`);
+      });
+      console.error('');
+      return false;
+    }
+    
+    return true;
+  } catch (_err) {
+    // If validation fails, assume config is okay
+    return true;
+  }
 }
 
 function deepMerge(base, add) {

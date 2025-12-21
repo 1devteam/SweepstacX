@@ -1,6 +1,6 @@
 {
   "name": "sweepstacx",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Repo sweeper for modern dev stacks: scan, report, patch.",
   "type": "module",
   "bin": {
@@ -13,8 +13,12 @@
   "scripts": {
     "build": "echo 'no build step for CLI'",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm test && npm run lint",
+    "validate": "npm run lint && npm test"
   },
   "keywords": [
     "cli",
@@ -23,7 +27,17 @@
     "dead-code",
     "duplicates",
     "repo",
-    "automation"
+    "automation",
+    "unused-imports",
+    "static-analysis",
+    "linter",
+    "code-smell",
+    "technical-debt",
+    "ci-cd",
+    "dependency-analysis",
+    "sweeper",
+    "typescript",
+    "javascript"
   ],
   "author": "You",
   "license": "MIT",
@@ -39,6 +53,9 @@
     "node": ">=18.17"
   },
   "dependencies": {
+    "ajv": "^8.17.1",
+    "chokidar": "^5.0.0",
+    "cli-progress": "^3.12.0",
     "commander": "^12.1.0",
     "fast-glob": "^3.3.2",
     "picocolors": "^1.0.0"

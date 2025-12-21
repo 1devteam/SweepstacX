@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+*.min.js
+*.patch
+package-lock.json
+CHANGELOG.md
+examples
+tests/fixtures

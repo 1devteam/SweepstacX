@@ -3,12 +3,23 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { resolve, relative } from 'node:path';
 import { detectDeadFiles } from '../analyzers/dead-files.js';
 import { detectStaleDeps } from '../analyzers/stale-deps.js';
+import { detectUnusedTypeScriptImports } from '../analyzers/typescript.js';
+import { startProgress, incrementProgress, stopProgress, showSpinner } from '../utils/progress.js';
+import { getCache, setCache, getFileCacheKey } from '../utils/cache.js';
+import { handleError, showSuccess, showWarning } from '../utils/errors.js';
 
 export default async function runScan(opts = {}) {
-  const root = resolve(process.cwd(), opts.path || '.');
+  try {
+    const root = resolve(process.cwd(), opts.path || '.');
 
   const files = await fg(
-    [`${root}/**/*.js`, `${root}/**/*.mjs`, `${root}/**/*.cjs`],
+    [
+      `${root}/**/*.js`,
+      `${root}/**/*.mjs`,
+      `${root}/**/*.cjs`,
+      `${root}/**/*.ts`,
+      `${root}/**/*.tsx`
+    ],
     { ignore: ['**/node_modules/**','**/dist/**','**/coverage/**','**/.git/**'], dot: false }
   );
 
@@ -20,20 +31,49 @@ export default async function runScan(opts = {}) {
   }
 
   const issues = [];
+  
+  // Show progress for file scanning
+  const useCache = !opts.noCache;
+  startProgress(files.length, 'Scanning files');
+  
   for (const file of files) {
-    const src = await readFile(file, 'utf8');
-    const unused = detectUnusedImports(src);
-    for (const sym of unused) {
-      issues.push({
+    // Check cache first
+    const cacheKey = useCache ? await getFileCacheKey(file, 'scan') : null;
+    let fileIssues = useCache ? await getCache(cacheKey) : null;
+    
+    if (!fileIssues) {
+      const src = await readFile(file, 'utf8');
+      
+      // Determine if TypeScript or JavaScript
+      const isTypeScript = file.endsWith('.ts') || file.endsWith('.tsx');
+      
+      const unused = isTypeScript 
+        ? detectUnusedTypeScriptImports(src)
+        : detectUnusedImports(src);
+      
+      fileIssues = unused.map(sym => ({
         type: 'unused_import',
         file: relative(process.cwd(), file),
         symbol: sym,
-      });
+        language: isTypeScript ? 'typescript' : 'javascript',
+      }));
+      
+      // Cache results
+      if (useCache && cacheKey) {
+        await setCache(cacheKey, fileIssues);
+      }
     }
+    
+    issues.push(...fileIssues);
+    incrementProgress();
   }
+  
+  stopProgress();
 
-  // Detect dead files
+  // Detect dead files with spinner
+  const spinner = showSpinner('Analyzing file dependencies...');
   const deadFiles = await detectDeadFiles(files, root);
+  spinner.stop('Dead file analysis complete');
   for (const file of deadFiles) {
     issues.push({
       type: 'dead_file',
@@ -63,7 +103,7 @@ export default async function runScan(opts = {}) {
   };
 
   const report = {
-    meta: { tool: 'SweepstacX', version: '0.2.0', scanned_at: new Date().toISOString(), root },
+    meta: { tool: 'SweepstacX', version: '0.3.0', scanned_at: new Date().toISOString(), root },
     warnings,
     stats,
     issues
@@ -72,7 +112,11 @@ export default async function runScan(opts = {}) {
   await writeFile(resolve(process.cwd(), 'sweepstacx-report.json'), JSON.stringify(report, null, 2));
   await writeFile(resolve(process.cwd(), 'sweepstacx-report.md'), renderMarkdown(report), 'utf8');
 
-  console.log(`✓ Scan complete. files=${stats.files_scanned}, unused_imports=${stats.unused_imports}, dead_files=${stats.dead_files}, stale_deps=${stats.stale_dependencies}${warnings.length ? `, warnings=${warnings.length}` : ''}`);
+  showSuccess(`Scan complete. files=${stats.files_scanned}, unused_imports=${stats.unused_imports}, dead_files=${stats.dead_files}, stale_deps=${stats.stale_dependencies}${warnings.length ? `, warnings=${warnings.length}` : ''}`);
+  } catch (error) {
+    stopProgress(); // Ensure progress bar is stopped
+    handleError(error, 'scan');
+  }
 }
 
 /**

@@ -1,0 +1,186 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/1devteam/SweepstacX/main/docs/config-schema.json",
+  "title": "SweepstacX Configuration",
+  "description": "Configuration file for SweepstacX code quality tool",
+  "type": "object",
+  "properties": {
+    "complexity": {
+      "type": "object",
+      "description": "Code complexity thresholds",
+      "properties": {
+        "maxFunction": {
+          "type": "number",
+          "description": "Maximum cyclomatic complexity per function",
+          "default": 15,
+          "minimum": 1
+        },
+        "maxAverage": {
+          "type": "number",
+          "description": "Maximum average complexity across all functions",
+          "default": 10,
+          "minimum": 1
+        },
+        "minMaintainability": {
+          "type": "number",
+          "description": "Minimum maintainability index (0-100)",
+          "default": 65,
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "additionalProperties": false
+    },
+    "duplication": {
+      "type": "object",
+      "description": "Code duplication thresholds",
+      "properties": {
+        "maxLines": {
+          "type": "number",
+          "description": "Maximum lines of duplicate code",
+          "default": 10,
+          "minimum": 1
+        },
+        "maxPercent": {
+          "type": "number",
+          "description": "Maximum percentage of duplicate code",
+          "default": 8,
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "additionalProperties": false
+    },
+    "lint": {
+      "type": "object",
+      "description": "Linting thresholds",
+      "properties": {
+        "maxErrors": {
+          "type": "number",
+          "description": "Maximum number of linting errors",
+          "default": 0,
+          "minimum": 0
+        },
+        "maxWarningsPerKLOC": {
+          "type": "number",
+          "description": "Maximum warnings per 1000 lines of code",
+          "default": 10,
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "deps": {
+      "type": "object",
+      "description": "Dependency thresholds",
+      "properties": {
+        "unused": {
+          "type": "number",
+          "description": "Maximum number of unused dependencies",
+          "default": 0,
+          "minimum": 0
+        },
+        "missing": {
+          "type": "number",
+          "description": "Maximum number of missing dependencies",
+          "default": 0,
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "fuzz": {
+      "type": "object",
+      "description": "Fuzz testing configuration",
+      "properties": {
+        "timeout": {
+          "type": "number",
+          "description": "Timeout per test case in milliseconds",
+          "default": 5000,
+          "minimum": 100
+        },
+        "crashes": {
+          "type": "number",
+          "description": "Maximum number of crashes allowed",
+          "default": 0,
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "ignore": {
+      "type": "array",
+      "description": "Glob patterns to ignore during scanning",
+      "items": {
+        "type": "string",
+        "description": "Glob pattern (e.g., 'node_modules/**', '*.min.js')"
+      },
+      "default": [
+        "node_modules/**",
+        "dist/**",
+        "build/**",
+        "coverage/**",
+        ".git/**"
+      ]
+    },
+    "deadFiles": {
+      "type": "object",
+      "description": "Dead file detection configuration",
+      "properties": {
+        "entryPoints": {
+          "type": "array",
+          "description": "Additional entry point patterns",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "exclude": {
+          "type": "array",
+          "description": "Patterns to exclude from dead file detection",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "typescript": {
+      "type": "object",
+      "description": "TypeScript-specific configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable TypeScript file analysis",
+          "default": true
+        },
+        "checkTypeImports": {
+          "type": "boolean",
+          "description": "Check for unused type imports",
+          "default": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "cache": {
+      "type": "object",
+      "description": "Caching configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable caching for faster scans",
+          "default": true
+        },
+        "maxAge": {
+          "type": "number",
+          "description": "Maximum cache age in milliseconds",
+          "default": 3600000,
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

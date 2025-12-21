@@ -10,18 +10,21 @@ import runDupes from './commands/dupes.js';
 import runComplexity from './commands/complexity.js';
 import runFuzz from './commands/fuzz.js';
 import runInsights from './commands/insights.js';
+import runInit from './commands/init.js';
+import runWatch from './commands/watch.js';
 
 const program = new Command();
 program
   .name('sweepstacx')
   .description('Repo sweeper for modern dev stacks: scan, report, patch.')
-  .version('0.2.0');
+  .version('0.3.0');
 
 program
   .command('scan')
   .option('--path <path>', 'path to scan', '.')
   .option('--lang <lang>', 'language hint (js, ts)', 'js')
   .option('--config <file>', 'config file (.sweeperc.json)')
+  .option('--no-cache', 'disable caching for fresh scan')
   .action(async (opts) => { await runScan(opts); });
 
 program
@@ -76,5 +79,18 @@ program
   .description('Advanced code analysis with actionable recommendations')
   .option('--path <path>', 'path to analyze', '.')
   .action(async (opts) => { await runInsights(opts); });
+
+program
+  .command('init')
+  .description('Create a .sweeperc.json configuration file')
+  .option('--force', 'overwrite existing configuration')
+  .action(async (opts) => { await runInit(opts); });
+
+program
+  .command('watch')
+  .description('Watch files and re-scan on changes (development mode)')
+  .option('--path <path>', 'path to watch', '.')
+  .option('--no-cache', 'disable caching')
+  .action(async (opts) => { await runWatch(opts); });
 
 program.parseAsync(process.argv);
