@@ -1,0 +1,67 @@
+# SweepstacX CircleCI Configuration
+# Add this to .circleci/config.yml
+
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1
+
+jobs:
+  sweepstacx-scan:
+    docker:
+      - image: cimg/node:20.0
+    
+    steps:
+      - checkout
+      
+      - node/install-packages:
+          pkg-manager: npm
+      
+      - run:
+          name: Install SweepstacX
+          command: npm install -g sweepstacx
+      
+      - run:
+          name: Run SweepstacX scan
+          command: |
+            sweepstacx scan --git-diff
+      
+      - run:
+          name: Generate reports
+          command: |
+            sweepstacx html --output sweepstacx-report.html
+      
+      - run:
+          name: Check quality thresholds
+          command: |
+            ISSUE_COUNT=$(jq '.issues | length' sweepstacx-report.json)
+            echo "Found $ISSUE_COUNT issues"
+            
+            if [ "$ISSUE_COUNT" -gt 50 ]; then
+              echo "❌ Quality threshold exceeded"
+              exit 1
+            fi
+            
+            echo "✅ Quality check passed"
+      
+      - store_artifacts:
+          path: sweepstacx-report.html
+          destination: reports/sweepstacx.html
+      
+      - store_artifacts:
+          path: sweepstacx-report.json
+          destination: reports/sweepstacx.json
+      
+      - store_test_results:
+          path: sweepstacx-report.json
+
+workflows:
+  quality-check:
+    jobs:
+      - sweepstacx-scan:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - /feature\/.*/

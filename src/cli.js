@@ -15,12 +15,14 @@ import runWatch from './commands/watch.js';
 import generateHtmlReport from './commands/html-report.js';
 import showTrends from './commands/trends.js';
 import runFix from './commands/fix.js';
+import runBenchmark from './commands/benchmark.js';
+import runComplexity from './commands/complexity.js';
 
 const program = new Command();
 program
   .name('sweepstacx')
   .description('Repo sweeper for modern dev stacks: scan, report, patch.')
-  .version('0.4.0');
+  .version('0.5.0');
 
 program
   .command('scan')
@@ -117,5 +119,19 @@ program
   .description('Auto-fix issues from scan report')
   .option('--verify', 'suggest running scan after fixes')
   .action(async (opts) => { await runFix(opts); });
+
+program
+  .command('benchmark')
+  .description('Run performance benchmarks')
+  .option('--path <path>', 'path to benchmark', '.')
+  .option('--compare', 'compare with competitors')
+  .action(async (opts) => { await runBenchmark(opts); });
+
+program
+  .command('complexity')
+  .description('Analyze code complexity metrics')
+  .option('--path <path>', 'path to analyze', '.')
+  .option('--issues', 'show complexity issues')
+  .action(async (opts) => { await runComplexity(opts); });
 
 program.parseAsync(process.argv);

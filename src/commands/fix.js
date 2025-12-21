@@ -53,8 +53,12 @@ export default async function runFix(opts = {}) {
       'debugger',
       'trailing_whitespace',
       'multiple_empty_lines',
+      'var_declaration',
+      'double_equals',
+      'semicolon_missing',
       'react_missing_key',
       'vue_missing_key',
+      'angular_missing_trackby',
     ];
     
     const fixableIssues = fileIssues.filter(i => fixableTypes.includes(i.type));

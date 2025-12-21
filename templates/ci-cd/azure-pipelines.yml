@@ -1,0 +1,79 @@
+# SweepstacX Azure Pipelines Configuration
+# Add this to azure-pipelines.yml
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - feature/*
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  SWEEPSTACX_THRESHOLD: 50
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Install Node.js'
+  
+  - script: |
+      npm install -g sweepstacx
+    displayName: 'Install SweepstacX'
+  
+  - script: |
+      if [ "$(Build.Reason)" == "PullRequest" ]; then
+        echo "Scanning changed files in PR..."
+        sweepstacx scan --git-diff --since origin/$(System.PullRequest.TargetBranch)
+      else
+        echo "Running full scan..."
+        sweepstacx scan
+      fi
+    displayName: 'Run SweepstacX Scan'
+  
+  - script: |
+      sweepstacx html --output sweepstacx-report.html
+    displayName: 'Generate HTML Report'
+  
+  - script: |
+      ISSUE_COUNT=$(jq '.issues | length' sweepstacx-report.json)
+      echo "Found $ISSUE_COUNT issues"
+      
+      if [ "$ISSUE_COUNT" -gt "$(SWEEPSTACX_THRESHOLD)" ]; then
+        echo "##vso[task.logissue type=error]Quality threshold exceeded: $ISSUE_COUNT issues"
+        exit 1
+      fi
+      
+      echo "##vso[task.complete result=Succeeded;]Quality check passed"
+    displayName: 'Check Quality Thresholds'
+  
+  - task: PublishBuildArtifacts@1
+    condition: always()
+    inputs:
+      pathToPublish: 'sweepstacx-report.html'
+      artifactName: 'SweepstacX-HTML-Report'
+    displayName: 'Publish HTML Report'
+  
+  - task: PublishBuildArtifacts@1
+    condition: always()
+    inputs:
+      pathToPublish: 'sweepstacx-report.json'
+      artifactName: 'SweepstacX-JSON-Report'
+    displayName: 'Publish JSON Report'
+  
+  - task: PublishTestResults@2
+    condition: always()
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'sweepstacx-report.json'
+      testRunTitle: 'SweepstacX Code Quality'
+    displayName: 'Publish Test Results'

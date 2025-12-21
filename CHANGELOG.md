@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2024-12-21
+
+### Added
+- **Angular Analyzer** - Comprehensive Angular-specific code analysis
+  - Detects missing trackBy in *ngFor
+  - Identifies subscription leaks
+  - Finds direct DOM manipulation
+  - Checks for improper dependency injection
+  - Detects missing async pipes
+- **CI/CD Templates** - Ready-to-use configurations for 5 major platforms
+  - GitHub Actions workflow
+  - GitLab CI configuration
+  - CircleCI config
+  - Jenkins pipeline
+  - Azure Pipelines
+  - Complete documentation in `templates/ci-cd/`
+- **Performance Benchmarking** - `sweepstacx benchmark` command
+  - Measures scan performance
+  - Compares cached vs uncached scans
+  - Git diff mode benchmarking
+  - Competitor comparison estimates
+- **Enhanced Auto-fix** - Support for 11 issue types (up from 4)
+  - `var` to `let` conversion
+  - `==` to `===` conversion
+  - Missing semicolons
+  - Angular trackBy fixes
+  - React and Vue key fixes
+- **Plugin System** - Extensibility framework
+  - Custom analyzer support
+  - Custom fixer support
+  - Lifecycle hooks (beforeScan, afterScan)
+  - Plugin loading from configuration
+  - Complete documentation in `docs/PLUGINS.md`
+- **Complexity Metrics** - `sweepstacx complexity` command
+  - Cyclomatic complexity calculation
+  - Cognitive complexity measurement
+  - Lines of code counting
+  - Function metrics and nesting depth
+  - Complexity distribution reports
+  - A-F ratings with recommendations
+
+### Changed
+- Auto-fix now supports 11 different issue types (up from 4)
+- Enhanced error messages with better context
+
+### Documentation
+- Added `docs/PLUGINS.md` - Complete plugin development guide
+- Added `templates/ci-cd/README.md` - CI/CD integration guide
+- Updated README with new features
+
 ## [0.4.0] - 2024-12-21
 
 ### Added
@@ -132,7 +182,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic command structure
 - Core scanning functionality
 
-[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/1devteam/SweepstacX/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/1devteam/SweepstacX/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/1devteam/SweepstacX/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/1devteam/SweepstacX/compare/v0.1.7...v0.2.0

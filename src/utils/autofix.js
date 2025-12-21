@@ -80,6 +80,25 @@ export async function fixCodeSmells(filePath, issues) {
           code = code.replace(/\n\n\n+/g, '\n\n');
           modified = true;
           break;
+          
+        case 'var_declaration':
+          // Convert var to const/let
+          code = code.replace(/\bvar\b/g, 'let');
+          modified = true;
+          break;
+          
+        case 'double_equals':
+          // Convert == to ===
+          code = code.replace(/([^=!])={2}([^=])/g, '$1===$2');
+          code = code.replace(/([^=!])!={1}([^=])/g, '$1!==$2');
+          modified = true;
+          break;
+          
+        case 'semicolon_missing':
+          // Add missing semicolons (simple cases)
+          code = code.replace(/(\w+)\n/g, '$1;\n');
+          modified = true;
+          break;
       }
     });
     
@@ -155,6 +174,44 @@ export async function fixVueKeys(filePath) {
 }
 
 /**
+ * Fix Angular missing trackBy
+ */
+export async function fixAngularTrackBy(filePath) {
+  try {
+    let code = await readFile(filePath, 'utf8');
+    
+    // Find *ngFor without trackBy and add it
+    code = code.replace(
+      /(\*ngFor\s*=\s*"let\s+(\w+)\s+of\s+(\w+))"/g,
+      (match, ngFor, item, collection) => {
+        // Check if trackBy already exists
+        if (/trackBy/.test(match)) {
+          return match;
+        }
+        // Add trackBy function
+        return `${ngFor}; trackBy: trackBy${collection.charAt(0).toUpperCase() + collection.slice(1)}"`;
+      }
+    );
+    
+    // Add trackBy function to component if not exists
+    if (!code.includes('trackBy')) {
+      // Find the last method in the class
+      const classEndRegex = /(\n\s*})\s*$/;
+      if (classEndRegex.test(code)) {
+        const trackByFunction = `\n\n  trackByIndex(index: number): number {\n    return index;\n  }\n`;
+        code = code.replace(classEndRegex, trackByFunction + '$1');
+      }
+    }
+    
+    await writeFile(filePath, code, 'utf8');
+    return true;
+  } catch (error) {
+    console.error(`Failed to fix ${filePath}:`, error.message);
+    return false;
+  }
+}
+
+/**
  * Apply all applicable fixes to a file
  */
 export async function applyAllFixes(filePath, issues) {
@@ -163,15 +220,17 @@ export async function applyAllFixes(filePath, issues) {
     codeSmells: false,
     reactKeys: false,
     vueKeys: false,
+    angularTrackBy: false,
   };
   
   // Group issues by type
   const unusedImports = issues.filter(i => i.type === 'unused_import');
   const codeSmells = issues.filter(i => 
-    ['console_log', 'debugger', 'trailing_whitespace', 'multiple_empty_lines'].includes(i.type)
+    ['console_log', 'debugger', 'trailing_whitespace', 'multiple_empty_lines', 'var_declaration', 'double_equals', 'semicolon_missing'].includes(i.type)
   );
   const reactIssues = issues.filter(i => i.type === 'react_missing_key');
   const vueIssues = issues.filter(i => i.type === 'vue_missing_key');
+  const angularIssues = issues.filter(i => i.type === 'angular_missing_trackby');
   
   // Apply fixes
   if (unusedImports.length > 0) {
@@ -189,6 +248,10 @@ export async function applyAllFixes(filePath, issues) {
   
   if (vueIssues.length > 0) {
     results.vueKeys = await fixVueKeys(filePath);
+  }
+  
+  if (angularIssues.length > 0) {
+    results.angularTrackBy = await fixAngularTrackBy(filePath);
   }
   
   return results;

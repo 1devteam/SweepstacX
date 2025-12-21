@@ -1,0 +1,65 @@
+# SweepstacX GitLab CI Configuration
+# Add this to your .gitlab-ci.yml
+
+stages:
+  - quality
+
+sweepstacx:
+  stage: quality
+  image: node:20-alpine
+  
+  before_script:
+    - npm install -g sweepstacx
+  
+  script:
+    # Run scan with git-diff for merge requests
+    - |
+      if [ -n "$CI_MERGE_REQUEST_IID" ]; then
+        echo "Scanning changed files in MR..."
+        sweepstacx scan --git-diff --since origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+      else
+        echo "Running full scan..."
+        sweepstacx scan
+      fi
+    
+    # Generate reports
+    - sweepstacx html --output sweepstacx-report.html
+    
+    # Check thresholds
+    - |
+      ISSUE_COUNT=$(cat sweepstacx-report.json | jq '.issues | length')
+      echo "Found $ISSUE_COUNT issues"
+      
+      if [ "$ISSUE_COUNT" -gt 50 ]; then
+        echo "❌ Too many issues: $ISSUE_COUNT"
+        exit 1
+      fi
+  
+  artifacts:
+    when: always
+    paths:
+      - sweepstacx-report.html
+      - sweepstacx-report.json
+      - sweepstacx-report.md
+    reports:
+      junit: sweepstacx-report.json
+    expire_in: 30 days
+  
+  only:
+    - merge_requests
+    - main
+    - develop
+  
+  cache:
+    paths:
+      - .sweepstacx/cache/
+
+# Optional: Scheduled weekly full scan
+sweepstacx:weekly:
+  extends: sweepstacx
+  script:
+    - sweepstacx scan --no-cache
+    - sweepstacx trends --detailed --chart
+    - sweepstacx html
+  only:
+    - schedules

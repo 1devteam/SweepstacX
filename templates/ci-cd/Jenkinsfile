@@ -1,0 +1,89 @@
+// SweepstacX Jenkins Pipeline
+// Add this as Jenkinsfile to your repository
+
+pipeline {
+    agent {
+        docker {
+            image 'node:20-alpine'
+        }
+    }
+    
+    environment {
+        SWEEPSTACX_THRESHOLD = '50'
+    }
+    
+    stages {
+        stage('Setup') {
+            steps {
+                sh 'npm install -g sweepstacx'
+            }
+        }
+        
+        stage('Scan') {
+            steps {
+                script {
+                    if (env.CHANGE_ID) {
+                        // Pull request - scan only changed files
+                        sh """
+                            sweepstacx scan --git-diff --since origin/${env.CHANGE_TARGET}
+                        """
+                    } else {
+                        // Regular build - full scan
+                        sh 'sweepstacx scan'
+                    }
+                }
+            }
+        }
+        
+        stage('Generate Reports') {
+            steps {
+                sh 'sweepstacx html --output sweepstacx-report.html'
+                sh 'sweepstacx trends --detailed > trends.txt'
+            }
+        }
+        
+        stage('Quality Gate') {
+            steps {
+                script {
+                    def report = readJSON file: 'sweepstacx-report.json'
+                    def issueCount = report.issues.size()
+                    
+                    echo "Found ${issueCount} issues"
+                    
+                    if (issueCount > env.SWEEPSTACX_THRESHOLD.toInteger()) {
+                        error("Quality gate failed: ${issueCount} issues found (threshold: ${env.SWEEPSTACX_THRESHOLD})")
+                    }
+                    
+                    echo "✅ Quality gate passed"
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Archive reports
+            archiveArtifacts artifacts: 'sweepstacx-report.*', fingerprint: true
+            archiveArtifacts artifacts: 'trends.txt', fingerprint: true, allowEmptyArchive: true
+            
+            // Publish HTML report
+            publishHTML([
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: '.',
+                reportFiles: 'sweepstacx-report.html',
+                reportName: 'SweepstacX Report',
+                reportTitles: 'Code Quality Report'
+            ])
+        }
+        
+        success {
+            echo '✅ SweepstacX scan completed successfully'
+        }
+        
+        failure {
+            echo '❌ SweepstacX scan failed - check the reports'
+        }
+    }
+}
