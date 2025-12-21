@@ -17,7 +17,6 @@ import generateEnhancedHtmlReport from './commands/html-report-enhanced.js';
 import showTrends from './commands/trends.js';
 import runFix from './commands/fix.js';
 import runBenchmark from './commands/benchmark.js';
-import runComplexity from './commands/complexity.js';
 import exportReport from './commands/export.js';
 import diffReports from './commands/diff.js';
 import runSecurityScan from './commands/security.js';
