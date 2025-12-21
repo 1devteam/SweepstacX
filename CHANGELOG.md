@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2024-12-21
+
+### Added
+- **HTML Report Generation** - Interactive visual dashboards with charts and filtering
+- **Git Integration** - `--git-diff` flag to scan only changed files
+- **Metrics Tracking** - Automatic tracking of scan history for trend analysis
+- **Trends Command** - `sweepstacx trends` to view code quality over time with ASCII charts
+- **Auto-fix Capabilities** - `sweepstacx fix` command to automatically fix common issues
+- **Framework-Specific Analyzers**
+  - React analyzer (missing keys, inline functions, state mutations, etc.)
+  - Vue analyzer (v-for keys, prop mutations, missing emits, etc.)
+- **Parallel Processing** - Infrastructure for multi-threaded file processing
+- **New Commands**
+  - `sweepstacx html` - Generate interactive HTML reports
+  - `sweepstacx trends` - View code quality trends
+  - `sweepstacx fix` - Auto-fix issues
+
+### Improved
+- Scan command now supports `--git-diff` for incremental analysis
+- Scan command now supports `--since <ref>` for comparing against specific commits
+- Metrics automatically saved after each scan
+- Better visualization with HTML reports
+
+### Dependencies
+- Added `simple-git` for Git integration
+
 ## [0.3.0] - 2024-12-21
 
 ### Added
@@ -106,7 +132,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic command structure
 - Core scanning functionality
 
-[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/1devteam/SweepstacX/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/1devteam/SweepstacX/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/1devteam/SweepstacX/compare/v0.1.7...v0.2.0
 [0.1.7]: https://github.com/1devteam/SweepstacX/compare/v0.1.6...v0.1.7

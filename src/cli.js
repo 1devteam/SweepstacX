@@ -12,12 +12,15 @@ import runFuzz from './commands/fuzz.js';
 import runInsights from './commands/insights.js';
 import runInit from './commands/init.js';
 import runWatch from './commands/watch.js';
+import generateHtmlReport from './commands/html-report.js';
+import showTrends from './commands/trends.js';
+import runFix from './commands/fix.js';
 
 const program = new Command();
 program
   .name('sweepstacx')
   .description('Repo sweeper for modern dev stacks: scan, report, patch.')
-  .version('0.3.0');
+  .version('0.4.0');
 
 program
   .command('scan')
@@ -25,6 +28,8 @@ program
   .option('--lang <lang>', 'language hint (js, ts)', 'js')
   .option('--config <file>', 'config file (.sweeperc.json)')
   .option('--no-cache', 'disable caching for fresh scan')
+  .option('--git-diff', 'only scan files changed in git')
+  .option('--since <ref>', 'git ref to compare against (default: HEAD)', 'HEAD')
   .action(async (opts) => { await runScan(opts); });
 
 program
@@ -92,5 +97,25 @@ program
   .option('--path <path>', 'path to watch', '.')
   .option('--no-cache', 'disable caching')
   .action(async (opts) => { await runWatch(opts); });
+
+program
+  .command('html')
+  .description('Generate interactive HTML report from scan results')
+  .option('--output <file>', 'output HTML file', 'sweepstacx-report.html')
+  .action(async (opts) => { await generateHtmlReport(opts); });
+
+program
+  .command('trends')
+  .description('Show code quality trends over time')
+  .option('--path <path>', 'path to analyze', '.')
+  .option('--detailed', 'show detailed history')
+  .option('--chart', 'show ASCII chart')
+  .action(async (opts) => { await showTrends(opts); });
+
+program
+  .command('fix')
+  .description('Auto-fix issues from scan report')
+  .option('--verify', 'suggest running scan after fixes')
+  .action(async (opts) => { await runFix(opts); });
 
 program.parseAsync(process.argv);

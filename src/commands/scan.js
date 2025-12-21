@@ -7,12 +7,32 @@ import { detectUnusedTypeScriptImports } from '../analyzers/typescript.js';
 import { startProgress, incrementProgress, stopProgress, showSpinner } from '../utils/progress.js';
 import { getCache, setCache, getFileCacheKey } from '../utils/cache.js';
 import { handleError, showSuccess, showWarning } from '../utils/errors.js';
+import { getChangedFiles, getRepoInfo } from '../utils/git-integration.js';
+import { saveMetrics } from '../utils/metrics.js';
 
 export default async function runScan(opts = {}) {
   try {
     const root = resolve(process.cwd(), opts.path || '.');
+    
+    // Git integration: only scan changed files if --git-diff is enabled
+    let gitFilteredFiles = null;
+    if (opts.gitDiff) {
+      const repoInfo = await getRepoInfo(root);
+      if (repoInfo.isGitRepo) {
+        console.log(pc.cyan('🔍 Git mode enabled'));
+        console.log(pc.gray(`  Branch: ${repoInfo.branch}`));
+        console.log(pc.gray(`  Changed files: ${repoInfo.changedFiles}`));
+        gitFilteredFiles = await getChangedFiles(root, { since: opts.since || 'HEAD' });
+        if (gitFilteredFiles && gitFilteredFiles.length === 0) {
+          showSuccess('No changed files to scan');
+          return;
+        }
+      } else {
+        showWarning('Not a git repository, scanning all files');
+      }
+    }
 
-  const files = await fg(
+  let files = await fg(
     [
       `${root}/**/*.js`,
       `${root}/**/*.mjs`,
@@ -22,6 +42,13 @@ export default async function runScan(opts = {}) {
     ],
     { ignore: ['**/node_modules/**','**/dist/**','**/coverage/**','**/.git/**'], dot: false }
   );
+  
+  // Filter to only changed files if git mode is enabled
+  if (gitFilteredFiles && gitFilteredFiles.length > 0) {
+    const gitFileSet = new Set(gitFilteredFiles);
+    files = files.filter(file => gitFileSet.has(resolve(file)));
+    console.log(pc.gray(`  Scanning ${files.length} changed files`));
+  }
 
   const warnings = [];
   if (files.length === 0) {
@@ -103,7 +130,7 @@ export default async function runScan(opts = {}) {
   };
 
   const report = {
-    meta: { tool: 'SweepstacX', version: '0.3.0', scanned_at: new Date().toISOString(), root },
+    meta: { tool: 'SweepstacX', version: '0.4.0', scanned_at: new Date().toISOString(), root },
     warnings,
     stats,
     issues
@@ -111,6 +138,9 @@ export default async function runScan(opts = {}) {
 
   await writeFile(resolve(process.cwd(), 'sweepstacx-report.json'), JSON.stringify(report, null, 2));
   await writeFile(resolve(process.cwd(), 'sweepstacx-report.md'), renderMarkdown(report), 'utf8');
+  
+  // Save metrics for trend analysis
+  await saveMetrics(report, root);
 
   showSuccess(`Scan complete. files=${stats.files_scanned}, unused_imports=${stats.unused_imports}, dead_files=${stats.dead_files}, stale_deps=${stats.stale_dependencies}${warnings.length ? `, warnings=${warnings.length}` : ''}`);
   } catch (error) {
