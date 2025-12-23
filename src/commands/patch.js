@@ -4,43 +4,56 @@ import { join } from 'node:path';
 
 const CACHE_FILE = '.sweepstacx/scan.json';
 
-export default async function patchCmd({ apply = false, dryRun = false }) {
+async function getPatchableIssues() {
   const scan = await readJSON(CACHE_FILE);
   if (!scan) throw new Error('No scan cache found. Run `sweepstacx scan` first.');
+
+  // group issues by file, only handle unused_import
+  const byFile = new Map();
+  for (const issue of scan.issues) {
+    if (issue.type !== 'unused_import') continue;
+    // FIX: Use 'symbol' property as defined in scan.js, not 'token'
+    if (!byFile.has(issue.file)) byFile.set(issue.file, []);
+    byFile.get(issue.file).push(issue.symbol);
+  }
+  return { byFile, root: scan.root };
+}
+
+async function processFilePatch(relPath, tokens, root, apply, dryRun, counter) {
+  const absPath = join(root, relPath);
+  let original;
+  try {
+    original = await readFile(absPath, 'utf8');
+  } catch {
+    return null; // skip missing files
+  }
+
+  const { modified, edits } = removeUnusedImports(original, tokens);
+  if (edits.length === 0 || modified === original) return null;
+
+  const diffName = `patches/patch-${String(counter).padStart(3, '0')}.diff`;
+  await writeText(diffName, makePseudoDiff(relPath, original, modified, edits));
+
+  if (apply && !dryRun) {
+    await writeFile(absPath, modified, 'utf8');
+  }
+
+  return { file: relPath, edits, diff: diffName };
+}
+
+export default async function patchCmd({ apply = false, dryRun = false }) {
+  const { byFile, root } = await getPatchableIssues();
   await ensureDir('patches');
 
   const changes = [];
   let counter = 1;
 
-  // group issues by file, only handle unused_import in v0.1
-  const byFile = new Map();
-  for (const issue of scan.issues) {
-    if (issue.type !== 'unused_import') continue;
-    if (!byFile.has(issue.file)) byFile.set(issue.file, []);
-    byFile.get(issue.file).push(issue.token);
-  }
-
   for (const [relPath, tokens] of byFile.entries()) {
-    const absPath = join(scan.root, relPath);
-    let original;
-    try {
-      original = await readFile(absPath, 'utf8');
-    } catch {
-      continue; // skip missing files
+    const change = await processFilePatch(relPath, tokens, root, apply, dryRun, counter);
+    if (change) {
+      changes.push(change);
+      counter++;
     }
-
-    const { modified, edits } = removeUnusedImports(original, tokens);
-    if (edits.length === 0 || modified === original) continue;
-
-    const diffName = `patches/patch-${String(counter).padStart(3, '0')}.diff`;
-    await writeText(diffName, makePseudoDiff(relPath, original, modified, edits));
-    counter++;
-
-    if (apply && !dryRun) {
-      await writeFile(absPath, modified, 'utf8');
-    }
-
-    changes.push({ file: relPath, edits, diff: diffName });
   }
 
   if (!changes.length) {
@@ -60,47 +73,58 @@ export default async function patchCmd({ apply = false, dryRun = false }) {
 
 // --- helpers ---
 
+function processImportLine(line, tokensToRemove) {
+  const importRe = /^(\s*)import\s+(.+?)\s+from\s+(['"][^'"]+['"]);?\s*$/;
+  const m = line.match(importRe);
+  if (!m) return { modifiedLine: line, removedTokens: [], isRemoved: false };
+
+  const indent = m[1] || '';
+  const spec = m[2].trim();
+  const fromPart = m[3];
+
+  const result = parseImportSpec(spec);
+  if (!result) return { modifiedLine: line, removedTokens: [], isRemoved: false };
+
+  const removedTokens = [];
+
+  for (const t of tokensToRemove) {
+    if (result.default === t) { result.default = null; removedTokens.push(t); }
+    if (result.namespace === t) { result.namespace = null; removedTokens.push(t); }
+    const beforeLen = result.named.length;
+    result.named = result.named.filter(n => n.local !== t);
+    if (result.named.length !== beforeLen) removedTokens.push(t);
+  }
+
+  if (!removedTokens.length) return { modifiedLine: line, removedTokens: [], isRemoved: false };
+
+  const rebuilt = buildImportLine(indent, result, fromPart);
+
+  if (rebuilt === null) {
+    return { modifiedLine: null, removedTokens, isRemoved: true };
+  }
+
+  return { modifiedLine: rebuilt, removedTokens, isRemoved: false };
+}
+
 function removeUnusedImports(source, tokensToRemove) {
   const lines = source.split('\n');
   const edits = [];
 
-  const importRe = /^(\s*)import\s+(.+?)\s+from\s+(['"][^'"]+['"]);?\s*$/;
-
   for (let i = 0; i < lines.length; i++) {
-    const m = lines[i].match(importRe);
-    if (!m) continue;
+    const line = lines[i];
+    const { modifiedLine, removedTokens, isRemoved } = processImportLine(line, tokensToRemove);
 
-    const indent = m[1] || '';
-    const spec = m[2].trim();
-    const fromPart = m[3];
+    if (removedTokens.length === 0) continue;
 
-    const result = parseImportSpec(spec);
-    if (!result) continue;
-
-    const _before = lines[i];
-    const removedHere = [];
-
-    for (const t of tokensToRemove) {
-      if (result.default === t) { result.default = null; removedHere.push(t); }
-      if (result.namespace === t) { result.namespace = null; removedHere.push(t); }
-      const beforeLen = result.named.length;
-      result.named = result.named.filter(n => n.local !== t);
-      if (result.named.length !== beforeLen) removedHere.push(t);
-    }
-
-    if (!removedHere.length) continue;
-
-    const rebuilt = buildImportLine(indent, result, fromPart);
-
-    if (rebuilt === null) {
+    if (isRemoved) {
       lines.splice(i, 1);
-      i--;
-      edits.push({ line: i + 2, action: 'remove-line', tokens: removedHere });
+      i--; // Adjust index since a line was removed
+      edits.push({ line: i + 2, action: 'remove-line', tokens: removedTokens });
       continue;
     }
 
-    lines[i] = rebuilt;
-    edits.push({ line: i + 1, action: 'edit-line', tokens: removedHere });
+    lines[i] = modifiedLine;
+    edits.push({ line: i + 1, action: 'edit-line', tokens: removedTokens });
   }
 
   return { modified: lines.join('\n'), edits };

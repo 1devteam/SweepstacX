@@ -12,6 +12,23 @@ export default async function runComplexity(opts = {}) {
   
   console.log(pc.cyan('\n📊 Code Complexity Analysis\n'));
   
+  const { results, totalComplexity, totalCognitive, totalLOC, files } = await analyzeAllFiles(root);
+  
+  // Sort by complexity
+  results.sort((a, b) => b.metrics.cyclomaticComplexity - a.metrics.cyclomaticComplexity);
+  
+  displayTopFiles(results, root);
+  displaySummaryStats(files.length, totalLOC, totalComplexity, totalCognitive);
+  const distribution = calculateDistribution(results, files.length);
+  displayDistribution(distribution, files.length);
+  displayRecommendations(distribution, totalComplexity, files.length);
+  displayIssues(opts.issues, results, root);
+}
+
+/**
+ * Helper to find files and run analysis
+ */
+async function analyzeAllFiles(root) {
   // Find all files
   const files = await fg(
     [
@@ -47,10 +64,13 @@ export default async function runComplexity(opts = {}) {
     totalLOC += metrics.linesOfCode;
   }
   
-  // Sort by complexity
-  results.sort((a, b) => b.metrics.cyclomaticComplexity - a.metrics.cyclomaticComplexity);
-  
-  // Show top complex files
+  return { results, totalComplexity, totalCognitive, totalLOC, files };
+}
+
+/**
+ * Display the top 10 most complex files
+ */
+function displayTopFiles(results, root) {
   console.log(pc.bold('Most Complex Files (Top 10)'));
   console.log('');
   
@@ -64,21 +84,26 @@ export default async function runComplexity(opts = {}) {
     console.log(pc[rating.color](`    Rating: ${rating.rating} (${rating.label})`));
     console.log('');
   });
-  
-  // Show summary statistics
+}
+
+/**
+ * Display summary statistics
+ */
+function displaySummaryStats(fileCount, totalLOC, totalComplexity, totalCognitive) {
   console.log(pc.bold('Summary Statistics'));
   console.log('');
-  console.log(pc.gray(`Total Files:              ${files.length}`));
+  console.log(pc.gray(`Total Files:              ${fileCount}`));
   console.log(pc.gray(`Total Lines of Code:      ${totalLOC.toLocaleString()}`));
-  console.log(pc.gray(`Average Cyclomatic:       ${(totalComplexity / files.length).toFixed(2)}`));
-  console.log(pc.gray(`Average Cognitive:        ${(totalCognitive / files.length).toFixed(2)}`));
-  console.log(pc.gray(`Average LOC per File:     ${Math.round(totalLOC / files.length)}`));
+  console.log(pc.gray(`Average Cyclomatic:       ${(totalComplexity / fileCount).toFixed(2)}`));
+  console.log(pc.gray(`Average Cognitive:        ${(totalCognitive / fileCount).toFixed(2)}`));
+  console.log(pc.gray(`Average LOC per File:     ${Math.round(totalLOC / fileCount)}`));
   console.log('');
-  
-  // Complexity distribution
-  console.log(pc.bold('Complexity Distribution'));
-  console.log('');
-  
+}
+
+/**
+ * Calculate complexity distribution
+ */
+function calculateDistribution(results, fileCount) {
   const distribution = {
     simple: 0,      // <= 5
     moderate: 0,    // 6-10
@@ -95,16 +120,28 @@ export default async function runComplexity(opts = {}) {
     else if (cc <= 30) distribution.veryComplex++;
     else distribution.extreme++;
   });
+  return distribution;
+}
+
+/**
+ * Display complexity distribution
+ */
+function displayDistribution(distribution, total) {
+  console.log(pc.bold('Complexity Distribution'));
+  console.log('');
   
-  const total = files.length;
   console.log(pc.green(`  Simple (A):       ${distribution.simple.toString().padStart(4)} (${((distribution.simple / total) * 100).toFixed(1)}%)`));
   console.log(pc.cyan(`  Moderate (B):     ${distribution.moderate.toString().padStart(4)} (${((distribution.moderate / total) * 100).toFixed(1)}%)`));
   console.log(pc.yellow(`  Complex (C):      ${distribution.complex.toString().padStart(4)} (${((distribution.complex / total) * 100).toFixed(1)}%)`));
   console.log(pc.red(`  Very Complex (D): ${distribution.veryComplex.toString().padStart(4)} (${((distribution.veryComplex / total) * 100).toFixed(1)}%)`));
   console.log(pc.red(`  Extreme (F):      ${distribution.extreme.toString().padStart(4)} (${((distribution.extreme / total) * 100).toFixed(1)}%)`));
   console.log('');
-  
-  // Recommendations
+}
+
+/**
+ * Display recommendations based on complexity
+ */
+function displayRecommendations(distribution, totalComplexity, fileCount) {
   console.log(pc.bold('Recommendations'));
   console.log('');
   
@@ -112,15 +149,15 @@ export default async function runComplexity(opts = {}) {
     console.log(pc.red(`  ⚠ ${distribution.extreme} file(s) have extreme complexity - consider refactoring`));
   }
   
-  if (distribution.veryComplex > total * 0.2) {
+  if (distribution.veryComplex > fileCount * 0.2) {
     console.log(pc.yellow('  ⚠ More than 20% of files are very complex'));
   }
   
-  if (distribution.simple > total * 0.6) {
+  if (distribution.simple > fileCount * 0.6) {
     console.log(pc.green('  ✓ Most files have low complexity - good job!'));
   }
   
-  const avgComplexity = totalComplexity / files.length;
+  const avgComplexity = totalComplexity / fileCount;
   if (avgComplexity < 10) {
     console.log(pc.green('  ✓ Average complexity is low - code is maintainable'));
   } else if (avgComplexity > 20) {
@@ -128,9 +165,13 @@ export default async function runComplexity(opts = {}) {
   }
   
   console.log('');
-  
-  // Show issues if requested
-  if (opts.issues) {
+}
+
+/**
+ * Display detailed issues if requested
+ */
+function displayIssues(showIssues, results, root) {
+  if (showIssues) {
     const allIssues = results.flatMap(r => r.issues);
     
     if (allIssues.length > 0) {

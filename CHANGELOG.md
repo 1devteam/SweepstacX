@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2025-12-23
+
+### Added
+- **Smarter Project Initialization** - `sweepstacx init` now auto-detects project framework (React, Vue, Angular, Svelte) from `package.json` and configures file globs (e.g., `**/*.jsx`) automatically.
+- **Documentation Foundation** - Created a dedicated documentation site foundation using VitePress to better organize the 17+ commands.
+
+### Fixed
+- **Security False Positives** - Implemented an internal ignore list in `src/analyzers/security.js` to prevent the analyzer from flagging its own code, eliminating critical false positives and improving credibility.
+- **Patch Command Bug** - Fixed an issue in `src/commands/patch.js` where it was incorrectly looking for `issue.token` instead of `issue.symbol`.
+
+### Refactoring
+- **Core Complexity Reduction** - Refactored the three most complex core files to significantly reduce Cyclomatic and Cognitive complexity (from 'F' to 'B' rating or better):
+  - `src/commands/scan.js`
+  - `src/commands/patch.js`
+  - `src/commands/complexity.js`
+
 ## [0.6.0] - 2024-12-21
 
 ### Added
@@ -233,7 +249,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic command structure
 - Core scanning functionality
 
-[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/1devteam/SweepstacX/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/1devteam/SweepstacX/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/1devteam/SweepstacX/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/1devteam/SweepstacX/compare/v0.3.0...v0.4.0

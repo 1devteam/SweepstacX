@@ -63,7 +63,7 @@ export default async function runScan(opts = {}) {
   const useCache = !opts.noCache;
   startProgress(files.length, 'Scanning files');
   
-  for (const file of files) {
+  const fileProcessor = async (file) => {
     // Check cache first
     const cacheKey = useCache ? await getFileCacheKey(file, 'scan') : null;
     let fileIssues = useCache ? await getCache(cacheKey) : null;
@@ -91,6 +91,12 @@ export default async function runScan(opts = {}) {
       }
     }
     
+    return fileIssues;
+  };
+
+  // Process files sequentially for now, will use parallel later
+  for (const file of files) {
+    const fileIssues = await fileProcessor(file);
     issues.push(...fileIssues);
     incrementProgress();
   }
