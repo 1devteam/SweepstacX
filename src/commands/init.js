@@ -70,14 +70,14 @@ export default async function runInit(opts = {}) {
   }
   
   const detectedFramework = await detectFramework(packageJsonPath);
-  const fileGlobs = getFrameworkGlobs(detectedFramework);
+  // fileGlobs is used in the config object below, no need to re-assign here
   
   console.log(pc.cyan('\n🔧 Creating SweepstacX configuration...\n'));
   console.log(pc.gray(`  Detected project type: ${detectedFramework.toUpperCase()}`));
   
   const config = {
     "$schema": "https://raw.githubusercontent.com/1devteam/SweepstacX/main/docs/config-schema.json",
-    "files": fileGlobs,
+    "files": getFrameworkGlobs(detectedFramework),
     "complexity": {
       "maxFunction": 15,
       "maxAverage": 10,
@@ -124,7 +124,7 @@ export default async function runInit(opts = {}) {
   await writeFile(configPath, JSON.stringify(config, null, 2) + '\n');
   
   console.log(pc.green('✓'), 'Created .sweeperc.json');
-  console.log(pc.gray(`  File globs configured: ${fileGlobs.join(', ')}`));
+  console.log(pc.gray(`  File globs configured: ${getFrameworkGlobs(detectedFramework).join(', ')}`));
   console.log(pc.gray('\n  Next steps:'));
   console.log(pc.gray('    1. Review and customize the configuration'));
   console.log(pc.gray('    2. Run: sweepstacx scan'));

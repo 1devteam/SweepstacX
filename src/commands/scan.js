@@ -4,11 +4,13 @@ import { resolve, relative } from 'node:path';
 import { detectDeadFiles } from '../analyzers/dead-files.js';
 import { detectStaleDeps } from '../analyzers/stale-deps.js';
 import { detectUnusedTypeScriptImports } from '../analyzers/typescript.js';
+
 import { startProgress, incrementProgress, stopProgress, showSpinner } from '../utils/progress.js';
 import { getCache, setCache, getFileCacheKey } from '../utils/cache.js';
 import { handleError, showSuccess, showWarning } from '../utils/errors.js';
 import { getChangedFiles, getRepoInfo } from '../utils/git-integration.js';
 import { saveMetrics } from '../utils/metrics.js';
+
 
 export default async function runScan(opts = {}) {
   try {
@@ -269,7 +271,6 @@ function renderMarkdown(report) {
       lines.push(`- \`${i.file}\` - ${i.message}`);
     }
   }
-
   // Stale dependencies
   const staleDeps = report.issues.filter(i => i.type === 'stale_dependency');
   if (staleDeps.length > 0) {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { loadConfig, defaultConfig } from '../src/utils/config.js';
+import { readConfig, defaultConfig } from '../src/utils/config.js';
 import { writeFileSync, rmSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -13,7 +13,7 @@ describe('Config Utility', () => {
   });
 
   it('returns default config when no config file exists', async () => {
-    const config = await loadConfig();
+    const config = await readConfig();
 
     expect(config).toEqual(defaultConfig);
     expect(config.complexity.maxFunction).toBe(10);
@@ -32,7 +32,7 @@ describe('Config Utility', () => {
 
     writeFileSync(testConfigPath, JSON.stringify(userConfig, null, 2));
 
-    const config = await loadConfig();
+    const config = await readConfig();
 
     expect(config.complexity.maxFunction).toBe(20);
     expect(config.complexity.maxAverage).toBe(8); // from default
@@ -50,7 +50,7 @@ describe('Config Utility', () => {
 
     writeFileSync(customPath, JSON.stringify(userConfig, null, 2));
 
-    const config = await loadConfig('.', customPath);
+    const config = await readConfig('.', customPath);
 
     expect(config.complexity.maxFunction).toBe(15);
 
@@ -60,7 +60,7 @@ describe('Config Utility', () => {
   it('handles invalid JSON gracefully', async () => {
     writeFileSync(testConfigPath, 'invalid json {{{');
 
-    const config = await loadConfig();
+    const config = await readConfig();
 
     expect(config).toEqual(defaultConfig);
   });

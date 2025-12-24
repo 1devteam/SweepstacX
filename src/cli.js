@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import runScan from './commands/scan.js';
 import runReport from './commands/report.js';
 import runPatch from './commands/patch.js';
+import runScore from './commands/score.js';
 
 import runCheck from './commands/check.js';
 import runLint from './commands/lint.js';
@@ -25,7 +26,7 @@ const program = new Command();
 program
   .name('sweepstacx')
   .description('Repo sweeper for modern dev stacks: scan, report, patch.')
-  .version('0.6.0');
+  .version('0.7.0');
 
 program
   .command('scan')
@@ -158,5 +159,10 @@ program
   .description('Scan for security vulnerabilities')
   .option('--path <path>', 'path to scan', '.')
   .action(async (opts) => { await runSecurityScan(opts); });
+
+program
+  .command('score')
+  .description('Calculate a single Code Quality Score (A-F) based on last scan')
+  .action(async () => { await runScore(); });
 
 program.parseAsync(process.argv);

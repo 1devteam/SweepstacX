@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2025-12-24
+
+### Added
+- **Code Quality Score (CQS)** - New \`sweepstacx score\` command provides a single, weighted A-F quality rating for the codebase, ideal for CI/CD quality gates.
+- **Duplication Analyzer** - Integrated a new Duplication Analyzer (using jscpd) into the \`scan\` command to detect duplicated code blocks and report the percentage of duplicated lines.
+- **Complete Documentation** - Populated the new VitePress documentation site with content for all 17 commands and 9 analyzers.
+
+### Changed
+- **Scan Command** - Now uses the project's \`.sweeperc.json\` file globs for file discovery, enabling more flexible configuration.
+- **Duplication Analyzer** - Temporarily disabled in \`scan.js\` due to a dependency issue with \`jscpd\`'s internal use of the \`colors\` package, to ensure a stable release. Will be re-enabled in v0.8.1.
+
+### Fixed
+- Fixed a dependency resolution issue in the test suite related to the \`readConfig\` utility.
+
 ## [0.7.0] - 2025-12-23
 
 ### Added
@@ -249,7 +263,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic command structure
 - Core scanning functionality
 
-[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/1devteam/SweepstacX/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/1devteam/SweepstacX/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/1devteam/SweepstacX/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/1devteam/SweepstacX/compare/v0.4.0...v0.5.0

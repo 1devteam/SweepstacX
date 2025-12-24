@@ -44,6 +44,11 @@ export default defineConfig({
           { text: 'plugins', link: '/commands/plugins' },
           { text: 'fix', link: '/commands/fix' },
           { text: 'ci-template', link: '/commands/ci-template' },
+          { text: 'score', link: '/commands/score' },
+          { text: 'dupes', link: '/commands/dupes' },
+          { text: 'fuzz', link: '/commands/fuzz' },
+          { text: 'lint', link: '/commands/lint' },
+          { text: 'deps', link: '/commands/deps' },
         ]
       },
       {
@@ -54,6 +59,7 @@ export default defineConfig({
           { text: 'Frameworks', link: '/analyzers/frameworks' },
           { text: 'Security', link: '/analyzers/security' },
           { text: 'Complexity', link: '/analyzers/complexity' },
+          { text: 'Duplication', link: '/analyzers/duplication' },
         ]
       }
     ],

@@ -9,6 +9,7 @@ const __dirname = dirname(__filename);
 
 export const defaultConfig = {
   complexity: { maxFunction: 10, maxAverage: 8, minMaintainability: 70 },
+  files: ["**/*.js", "**/*.mjs", "**/*.cjs", "**/*.ts", "**/*.tsx"],
   duplication: { maxLines: 5, maxPercent: 5 },
   lint: { maxErrors: 0, maxWarningsPerKLOC: 5 },
   deps: { unused: 0, missing: 0 },
@@ -18,7 +19,7 @@ export const defaultConfig = {
   cache: { enabled: true, maxAge: 3600000 }
 };
 
-export async function loadConfig(_cliPath = '.', configPath = '') {
+export async function readConfig(_cliPath = '.', configPath = '') {
   try {
     const target = configPath
       ? resolve(process.cwd(), configPath)
