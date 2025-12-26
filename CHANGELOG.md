@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2025-12-24
+
+### Fixed
+- **Stabilization Patch** - Reverted temporary changes in \`src/commands/scan.js\`, \`src/commands/init.js\`, \`src/commands/check.js\`, and \`src/utils/config.js\` to ensure a stable v0.8.0 release.
+- **Test Suite** - Fixed a dependency resolution issue in the test suite related to the \`loadConfig\` utility.
+
+### Changed
+- **Duplication Analyzer** - The Duplication Analyzer remains disabled in \`scan.js\` until the underlying \`jscpd\` dependency issue is resolved.
+
+## [0.8.0] - 2025-12-24
+
 ## [0.8.0] - 2025-12-24
 
 ### Added
@@ -263,7 +274,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic command structure
 - Core scanning functionality
 
-[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/1devteam/SweepstacX/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/1devteam/SweepstacX/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/1devteam/SweepstacX/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/1devteam/SweepstacX/compare/v0.5.0...v0.6.0

@@ -2,7 +2,7 @@ import { exec as _exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import { readFile, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { readConfig } from '../utils/config.js';
+import { loadConfig } from '../utils/config.js';
 
 const exec = promisify(_exec);
 
@@ -10,7 +10,7 @@ export default async function runCheck(opts = {}) {
   const path = opts.path || '.';
   const outBase = '.sweepstacx-ci';
   const jsonPath = resolve(process.cwd(), `${outBase}.json`);
-  const cfg = await readConfig(path, opts.config);
+  const cfg = await loadConfig(path, opts.config);
 
   try {
     // Run your existing CLI flow to guarantee consistency

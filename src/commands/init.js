@@ -33,31 +33,7 @@ async function detectFramework(packageJsonPath) {
   }
 }
 
-function getFrameworkGlobs(framework) {
-  const baseGlobs = [
-    "**/*.js",
-    "**/*.mjs",
-    "**/*.cjs",
-    "**/*.ts",
-    "**/*.tsx"
-  ];
 
-  switch (framework) {
-    case 'react':
-      baseGlobs.push("**/*.jsx");
-      break;
-    case 'vue':
-      baseGlobs.push("**/*.vue");
-      break;
-    case 'angular':
-      // Angular projects are typically TypeScript only, but we can add more specific globs if needed
-      break;
-    case 'svelte':
-      baseGlobs.push("**/*.svelte");
-      break;
-  }
-  return baseGlobs;
-}
 
 export default async function runInit(opts = {}) {
   const configPath = resolve(process.cwd(), '.sweeperc.json');
@@ -70,34 +46,17 @@ export default async function runInit(opts = {}) {
   }
   
   const detectedFramework = await detectFramework(packageJsonPath);
-  // fileGlobs is used in the config object below, no need to re-assign here
+  const fileGlobs = getFrameworkGlobs(detectedFramework);
   
   console.log(pc.cyan('\n🔧 Creating SweepstacX configuration...\n'));
   console.log(pc.gray(`  Detected project type: ${detectedFramework.toUpperCase()}`));
   
   const config = {
     "$schema": "https://raw.githubusercontent.com/1devteam/SweepstacX/main/docs/config-schema.json",
-    "files": getFrameworkGlobs(detectedFramework),
     "complexity": {
       "maxFunction": 15,
       "maxAverage": 10,
       "minMaintainability": 65
-    },
-    "duplication": {
-      "maxLines": 10,
-      "maxPercent": 8
-    },
-    "lint": {
-      "maxErrors": 0,
-      "maxWarningsPerKLOC": 10
-    },
-    "deps": {
-      "unused": 0,
-      "missing": 0
-    },
-    "fuzz": {
-      "timeout": 5000,
-      "crashes": 0
     },
     "ignore": [
       "node_modules/**",
@@ -124,7 +83,7 @@ export default async function runInit(opts = {}) {
   await writeFile(configPath, JSON.stringify(config, null, 2) + '\n');
   
   console.log(pc.green('✓'), 'Created .sweeperc.json');
-  console.log(pc.gray(`  File globs configured: ${getFrameworkGlobs(detectedFramework).join(', ')}`));
+  console.log(pc.gray(`  File globs configured: ${fileGlobs.join(', ')}`));
   console.log(pc.gray('\n  Next steps:'));
   console.log(pc.gray('    1. Review and customize the configuration'));
   console.log(pc.gray('    2. Run: sweepstacx scan'));
