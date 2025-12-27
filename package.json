@@ -1,6 +1,6 @@
 {
   "name": "sweepstacx",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "description": "Repo sweeper for modern dev stacks: scan, report, patch.",
   "type": "module",
   "bin": {
@@ -59,8 +59,10 @@
     "colors": "^1.4.0",
     "commander": "^12.1.0",
     "fast-glob": "^3.3.2",
+    "license-checker-rseidelsohn": "^4.4.2",
     "picocolors": "^1.0.0",
-    "simple-git": "^3.30.0"
+    "simple-git": "^3.30.0",
+    "snyk-nodejs-lockfile-parser": "^2.4.4"
   },
   "devDependencies": {
     "depcheck": "^1.4.7",

@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2025-12-25
+
+### Added
+- **Deep Dependency Analysis** - New and significantly enhanced \`sweepstacx deps\` command.
+  - **License Compliance:** Scans all dependencies for license information and flags restrictive licenses (e.g., GPL).
+  - **Security Vulnerabilities:** Integrates with \`npm audit\` to report critical, high, medium, and low vulnerabilities.
+  - **Dependency Graph:** Uses \`snyk-nodejs-lockfile-parser\` to build a full dependency graph from \`pnpm-lock.yaml\` (and other lockfiles).
+- **Analyzer Upgrade** - The \`deps\` command was upgraded from a basic \`depcheck\` wrapper to a comprehensive dependency analysis tool.
+
+### Fixed
+- **Test Suite** - Fixed a module import error in \`src/analyzers/deep-deps.js\` to correctly import the CommonJS \`license-checker-rseidelsohn\` package.
+
+## [0.8.1] - 2025-12-24
+
 ## [0.8.1] - 2025-12-24
 
 ### Fixed
@@ -274,7 +288,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic command structure
 - Core scanning functionality
 
-[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.8.1...HEAD
+[Unreleased]: https://github.com/1devteam/SweepstacX/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/1devteam/SweepstacX/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/1devteam/SweepstacX/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/1devteam/SweepstacX/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/1devteam/SweepstacX/compare/v0.6.0...v0.7.0
