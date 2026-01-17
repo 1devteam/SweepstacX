@@ -1,0 +1,12 @@
+{
+  "version": "1",
+  "timestamp": 1768667853724,
+  "data": [
+    {
+      "type": "unused_import",
+      "file": "tests/fixtures/bad.js",
+      "symbol": "join",
+      "language": "javascript"
+    }
+  ]
+}

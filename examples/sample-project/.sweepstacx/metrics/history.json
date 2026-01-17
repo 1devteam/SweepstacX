@@ -1,0 +1,16 @@
+[
+  {
+    "timestamp": "2026-01-17T16:37:33.176Z",
+    "stats": {
+      "files_scanned": 4,
+      "unused_imports": 3,
+      "duplicate_blocks": 0,
+      "dead_files": 0,
+      "stale_dependencies": 0
+    },
+    "issueCount": 3,
+    "issuesByType": {
+      "unused_import": 3
+    }
+  }
+]

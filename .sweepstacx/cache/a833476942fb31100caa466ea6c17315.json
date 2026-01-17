@@ -1,0 +1,12 @@
+{
+  "version": "1",
+  "timestamp": 1768667853169,
+  "data": [
+    {
+      "type": "unused_import",
+      "file": "examples/sample-project/src/bad.js",
+      "symbol": "join",
+      "language": "javascript"
+    }
+  ]
+}
