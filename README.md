@@ -3,33 +3,16 @@
 [![npm version](https://img.shields.io/npm/v/sweepstacx.svg)](https://www.npmjs.com/package/sweepstacx)
 [![CI](https://github.com/1devteam/SweepstacX/actions/workflows/ci.yml/badge.svg)](https://github.com/1devteam/SweepstacX/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-19%20passing-brightgreen.svg)]()
 
-**Repo sweeper for modern dev stacks.**  
+Code quality scanning tool for JavaScript/TypeScript projects. Detects dead code, unused imports, stale dependencies, and duplicate logic.
 
-Scan, report, and patch dead code, unused imports, duplicate logic, and stale dependencies — keep your repos lean and production-ready.
-
----
-
-## ✨ Features
-
-- **🔍 Dead Code Detection** - Find files that are never imported
-- **📦 Unused Import Analysis** - Detect and remove unused imports
-- **⚠️ Stale Dependency Detection** - Identify deprecated or problematic packages
-- **📊 Multiple Output Formats** - JSON, Markdown, or stdout
-- **🔧 Auto-patching** - Generate and apply fixes automatically
-- **⚡ Fast & Lightweight** - Built on modern Node.js with minimal dependencies
-- **🎯 CI/CD Ready** - Easy integration with GitHub Actions, GitLab CI, and more
-
-## 🚀 Quick Start
-
-### Installation
+## Installation
 
 ```bash
 npm install -g sweepstacx
 ```
 
-### Basic Usage
+## Basic Usage
 
 ```bash
 # Scan your project
@@ -45,22 +28,9 @@ sweepstacx patch
 sweepstacx patch --apply
 ```
 
-### CI Mode
+## Commands
 
-```bash
-# Get stats-only output (perfect for CI)
-sweepstacx check --path . | jq .stats
-
-# Output JSON to stdout
-sweepstacx report --json
-
-# Output Markdown to stdout
-sweepstacx report --md
-```
-
-## 📖 Commands
-
-### `scan`
+### scan
 
 Scan your codebase for issues.
 
@@ -73,12 +43,7 @@ Options:
   --config <file>    Config file (.sweeperc.json)
 ```
 
-**Example:**
-```bash
-sweepstacx scan --path ./src
-```
-
-### `report`
+### report
 
 Generate or display scan reports.
 
@@ -91,19 +56,7 @@ Options:
   --md               Output Markdown to stdout
 ```
 
-**Examples:**
-```bash
-# Generate files
-sweepstacx report --out my-report
-
-# Pipe JSON to other tools
-sweepstacx report --json | jq '.issues | length'
-
-# View Markdown in terminal
-sweepstacx report --md | less
-```
-
-### `patch`
+### patch
 
 Generate and optionally apply patches.
 
@@ -114,14 +67,9 @@ Options:
   --apply            Apply generated patches with git apply
 ```
 
-**Example:**
-```bash
-sweepstacx patch --apply
-```
+### check
 
-### `check`
-
-CI-friendly stats-only mode with quality gates.
+CI-friendly stats-only mode.
 
 ```bash
 sweepstacx check [options]
@@ -129,11 +77,6 @@ sweepstacx check [options]
 Options:
   --path <path>      Path to scan (default: ".")
   --config <file>    Config file (.sweeperc.json)
-```
-
-**Example:**
-```bash
-sweepstacx check --path . | jq .stats
 ```
 
 ### Additional Commands
@@ -144,7 +87,7 @@ sweepstacx check --path . | jq .stats
 - `complexity` - Analyze code complexity
 - `fuzz` - Fuzz test JavaScript files
 
-## ⚙️ Configuration
+## Configuration
 
 Create a `.sweeperc.json` in your project root:
 
@@ -172,9 +115,7 @@ Create a `.sweeperc.json` in your project root:
 }
 ```
 
-See [examples/.sweeperc.example.json](examples/.sweeperc.example.json) for a complete example.
-
-## 🔗 CI/CD Integration
+## CI/CD Integration
 
 ### GitHub Actions
 
@@ -196,45 +137,7 @@ jobs:
       - run: sweepstacx check
 ```
 
-See [examples/ci-integration.md](examples/ci-integration.md) for more CI/CD examples.
-
-## 📊 Sample Output
-
-```
-✓ Scan complete. files=31, unused_imports=5, dead_files=2, stale_deps=1
-
-# SweepstacX — Scan Report
-
-**Scanned at:** 2024-12-20T22:45:33.593Z
-
-## Summary
-- Files scanned: **31**
-- Dead files: **2**
-- Unused imports: **5**
-- Stale dependencies: **1**
-
-## Issues
-
-### Unused Imports
-- `join` in `src/utils.js`
-- `React` in `components/Button.js`
-
-### Dead Files
-- `src/legacy/old-helper.js` - File is never imported
-
-### Stale Dependencies
-- `moment@^2.29.0` - Large bundle size - consider date-fns or dayjs
-```
-
-## 🎯 Use Cases
-
-- **Pre-commit hooks** - Catch issues before they're committed
-- **CI/CD pipelines** - Enforce code quality standards
-- **Codebase cleanup** - Identify and remove technical debt
-- **Refactoring** - Find safe-to-delete code during refactors
-- **Dependency audits** - Keep dependencies modern and secure
-
-## 🛠️ Development
+## Development
 
 ### Prerequisites
 
@@ -258,31 +161,6 @@ npm run test:watch    # Watch mode
 npm run lint          # Run linter
 ```
 
-## 🤝 Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## 📝 License
+## License
 
 MIT © [1devteam](https://github.com/1devteam)
-
-## 🗺️ Roadmap
-
-See [docs/roadmap.md](docs/roadmap.md) for planned features and milestones.
-
-## 💼 Consulting
-
-Need help integrating SweepstacX into your workflow or custom analysis features? See [docs/consulting.md](docs/consulting.md).
-
-## 🙏 Acknowledgments
-
-Built with:
-- [Commander.js](https://github.com/tj/commander.js) - CLI framework
-- [fast-glob](https://github.com/mrmlnc/fast-glob) - Fast file globbing
-- [Vitest](https://vitest.dev) - Testing framework
-
----
-
-**Made with ❤️ by the 1devteam**
-
-[Report Issues](https://github.com/1devteam/SweepstacX/issues) | [Request Features](https://github.com/1devteam/SweepstacX/issues/new) | [Discussions](https://github.com/1devteam/SweepstacX/discussions)
