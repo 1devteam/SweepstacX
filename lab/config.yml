@@ -12,7 +12,7 @@ artifacts: ".lab/artifacts"
 repos:
   - name: "requests"
     url: "https://github.com/psf/requests.git"
-    ref: "master"
+    ref: "main"
 
   - name: "rich"
     url: "https://github.com/Textualize/rich.git"
