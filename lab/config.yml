@@ -1,0 +1,23 @@
+version: 1
+
+# Lab configuration for black-box testing
+
+# Where repos are cloned (temporary)
+workspace: ".lab/workspace"
+
+# Where artifacts are stored (permanent)
+artifacts: ".lab/artifacts"
+
+# Repos to test against
+repos:
+  - name: "requests"
+    url: "https://github.com/psf/requests.git"
+    ref: "master"
+
+  - name: "rich"
+    url: "https://github.com/Textualize/rich.git"
+    ref: "master"
+
+  - name: "click"
+    url: "https://github.com/pallets/click.git"
+    ref: "main"
