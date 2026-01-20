@@ -1,0 +1,38 @@
+version: 1
+
+# Where repos are cloned
+workspace: ".sim/workspace"
+
+# Where outputs go
+artifacts: ".sim/artifacts"
+
+repos:
+  - name: "requests"
+    url: "https://github.com/psf/requests.git"
+    ref: "master"
+
+  - name: "rich"
+    url: "https://github.com/Textualize/rich.git"
+    ref: "master"
+
+  - name: "click"
+    url: "https://github.com/pallets/click.git"
+    ref: "main"
+
+tasks:
+  - id: "initial_scan"
+    type: "scan_full"
+    args:
+      format: "json"
+
+  - id: "incremental_scan"
+    type: "scan_git_diff"
+    args:
+      base_ref: "HEAD~1"
+      format: "json"
+
+  - id: "custom_rules"
+    type: "custom_rules_scan"
+    args:
+      rules_path: "rules/custom"
+      format: "json"
